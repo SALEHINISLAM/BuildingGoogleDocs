@@ -12,6 +12,10 @@ import Image from '@tiptap/extension-image'
 import ImageResize from 'tiptap-extension-resize-image';
 import useEditorStore from '@/store/use-editor-store'
 import Underline from '@tiptap/extension-underline'
+import FontFamily from '@tiptap/extension-font-family'
+import TextStyle from '@tiptap/extension-text-style'
+import { Color } from '@tiptap/extension-color'
+import Highlight from '@tiptap/extension-highlight'
 
 export default function Editor() {
     const {setEditor}=useEditorStore()
@@ -48,7 +52,7 @@ export default function Editor() {
         },
         extensions: [StarterKit,TaskItem.configure({
             nested: true,
-        }),TaskList,Table,TableCell,TableRow,TableHeader,TableRow,Image,ImageResize,Underline],
+        }),TaskList,Table,TableCell,TableRow,TableHeader,TableRow,Image,ImageResize,Underline,FontFamily,TextStyle,Color,Highlight.configure({ multicolor: true })],
         content: `<p>Hello World! 🌎️</p>
         <table>
         <tbody>
@@ -65,6 +69,7 @@ export default function Editor() {
         </tbody>
       </table>`,
     })
+    console.log(editor?.getAttributes("textStyle"))
     return (
         <div className='size-full overflow-x-auto bg-[#F9FBFD] px-4 print:p-0 print:bg-white print:overflow-visible'>
             <div className="mx-auto container flex justify-center py-4 print:w-full print:min-w-0 w-[816px]">
