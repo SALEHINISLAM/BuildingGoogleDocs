@@ -6,7 +6,7 @@ import useEditorStore from '@/store/use-editor-store'
 import { BoldIcon, ChevronDown, HighlighterIcon, ItalicIcon, ListTodoIcon, LucideIcon, MessageCircleIcon, PrinterIcon, Redo2Icon, SpellCheckIcon, UnderlineIcon, Undo2Icon } from 'lucide-react'
 import React from 'react'
 import {type Level} from "@tiptap/extension-heading"
-import { CirclePicker, SketchPicker, type ColorResult } from 'react-color'
+import { SketchPicker, type ColorResult } from 'react-color'
 
 const HighlightColorButton=()=>{
     const { editor } = useEditorStore()
