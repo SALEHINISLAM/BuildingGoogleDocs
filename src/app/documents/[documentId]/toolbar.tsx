@@ -1,55 +1,229 @@
 'use client'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import useEditorStore from '@/store/use-editor-store'
-import { BoldIcon, ChevronDown, HighlighterIcon, ItalicIcon, ListTodoIcon, LucideIcon, MessageCircleIcon, PrinterIcon, Redo2Icon, SpellCheckIcon, UnderlineIcon, Undo2Icon } from 'lucide-react'
-import React from 'react'
-import {type Level} from "@tiptap/extension-heading"
+import { AlignCenter, AlignJustify, AlignLeft, AlignLeftIcon, AlignRight, BoldIcon, ChevronDown, HighlighterIcon, ImageIcon, ItalicIcon, Link2Icon, ListTodoIcon, LucideIcon, MessageCircleIcon, PrinterIcon, Redo2Icon, SearchIcon, SpellCheckIcon, UnderlineIcon, Undo2Icon, UploadIcon } from 'lucide-react'
+import React, { useState } from 'react'
+import { type Level } from "@tiptap/extension-heading"
 import { SketchPicker, type ColorResult } from 'react-color'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import TextAlign from '@tiptap/extension-text-align'
 
-const HighlightColorButton=()=>{
+const AlignButton = () => {
     const { editor } = useEditorStore()
-    //const value=editor?.getAttributes("textStyle").color|| "#000000";
-    const onChange=(color:ColorResult)=>{
-        editor?.chain().focus().setHighlight({color:color.hex}).run()
-    }
+    //const value = editor?.getAttributes("highlight").color || "#FFFFFF";
+    const alignments: { label: string, value: string, icon: LucideIcon }[] = [
+        {
+            label: "Align Left",
+            value: "left",
+            icon: AlignLeft
+        },
+        {
+            label: "Align Center",
+            value: "center",
+            icon: AlignCenter
+        },
+        {
+            label: "Align Right",
+            value: "right",
+            icon: AlignRight
+        },
+        {
+            label: "Align Justify",
+            value: "justify",
+            icon: AlignJustify
+        },
+    ]
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <button 
-                className={cn(
-                    'h-7 min-h-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm '
-                )}>
-                    <HighlighterIcon/>
+                <button
+                    className={cn(
+                        'h-7 min-h-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm '
+                    )}>
+                    <AlignLeftIcon className='size-4' />
                 </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
-                <SketchPicker onChange={onChange}/>
+            <DropdownMenuContent className='p-1 flex flex-col gap-y-1'>
+                {
+                    alignments.map(({ label, value, icon: Icon }) => (
+                        <button
+                        key={label}
+                        onClick={()=>editor?.chain().focus().setTextAlign(value).run()}
+                        className={cn("flex items-center gap-x-2 rounded-sm hover:bg-neutral-200/80", editor?.isActive({textAlign:value}) && "bg-neutral-200/85")
+                    }
+                        >
+                            <Icon className='size-4'/>
+                            <span className='text-sm'>{label}</span>
+                        </button>
+                    ))
+                }
             </DropdownMenuContent>
         </DropdownMenu>
     )
 }
 
-const TextColorButton=()=>{
+const ImageButton = () => {
     const { editor } = useEditorStore()
-    const value=editor?.getAttributes("textStyle").color|| "#000000";
-    const onChange=(color:ColorResult)=>{
+    const [isDialogueOpen, setIsDialogueOpen] = useState(false)
+    const [imageUrl, setImageUrl] = useState("")
+    const onChange = (src: string) => {
+        editor?.chain().focus().setImage({ src }).run()
+        setImageUrl("")
+    }
+    const onUpload = () => {
+        const input = document.createElement("input")
+        input.type = "file"
+        input.accept = "image/*"
+        input.onchange = (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (file) {
+                const imageUrl = URL.createObjectURL(file)
+                onChange(imageUrl)
+            }
+        }
+        input.click()
+    }
+    const handleImageUrlSubmit = () => {
+        if (imageUrl) {
+            onChange(imageUrl)
+            setImageUrl("")
+            setIsDialogueOpen(false)
+        }
+    }
+    return (
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <button
+                        className={cn(
+                            'h-7 min-h-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm '
+                        )}
+                    >
+                        <ImageIcon />
+                    </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className='p-2.5 flex items-center justify-center gap-x-2'>
+                    <DropdownMenuItem onClick={onUpload}>
+                        <UploadIcon className='size-4 mr-2' />
+                        Upload
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsDialogueOpen(true)}>
+                        <SearchIcon className='size-4 mr-2' />
+                        Paste your image link here
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <Dialog open={isDialogueOpen} onOpenChange={setIsDialogueOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            Insert Image URL
+                        </DialogTitle>
+                    </DialogHeader>
+                    <Input
+                        placeholder='insert image url'
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                handleImageUrlSubmit()
+                            }
+                        }}
+                    />
+                    <DialogFooter>
+                        <Button onClick={handleImageUrlSubmit}>
+                            Insert
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
+    )
+}
+
+const LinkButton = () => {
+    const { editor } = useEditorStore()
+    const [value, setValue] = useState(editor?.getAttributes("link").href || "")
+    const onChange = (href: string) => {
+        editor?.chain().focus().extendMarkRange("link").setLink({ href }).run()
+        setValue("")
+    }
+    return (
+        <DropdownMenu
+            onOpenChange={(open) => {
+                if (open) {
+                    setValue(editor?.getAttributes('link').href)
+                }
+            }
+            }
+        >
+            <DropdownMenuTrigger asChild>
+                <button
+                    className={cn(
+                        'h-7 min-h-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm '
+                    )}
+                >
+                    <Link2Icon />
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className='p-2.5 flex items-center justify-center gap-x-2'>
+                <Input
+                    placeholder='https://eample.com'
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                />
+                <Button onClick={() => onChange(value)}>Apply</Button>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
+
+const HighlightColorButton = () => {
+    const { editor } = useEditorStore()
+    const value = editor?.getAttributes("highlight").color || "#FFFFFF";
+    const onChange = (color: ColorResult) => {
+        editor?.chain().focus().setHighlight({ color: color.hex }).run()
+    }
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button
+                    className={cn(
+                        'h-7 min-h-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm '
+                    )}>
+                    <HighlighterIcon />
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <SketchPicker color={value} onChange={onChange} />
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
+
+const TextColorButton = () => {
+    const { editor } = useEditorStore()
+    const value = editor?.getAttributes("textStyle").color || "#000000";
+    const onChange = (color: ColorResult) => {
         editor?.chain().focus().setColor(color.hex).run()
     }
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <button 
-                className={cn(
-                    'h-7 min-h-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm '
-                )}>
+                <button
+                    className={cn(
+                        'h-7 min-h-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm '
+                    )}>
                     <span className='text-xs'>A</span>
-                    <div className="h-0.5 w-full" style={{backgroundColor:`${value}`}}></div>
+                    <div className="h-0.5 w-full" style={{ backgroundColor: `${value}` }}></div>
                 </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-                <SketchPicker color={value} onChange={onChange}/>
+                <SketchPicker color={value} onChange={onChange} />
             </DropdownMenuContent>
         </DropdownMenu>
     )
@@ -124,11 +298,11 @@ const HeadingLevelButton = () => {
                         className={cn("flex justify-center items-center gap-x-2 px-2 py-1 rounded-sm hover:bg-neutral-200/80",
                             (value === 0 && !editor?.isActive("heading")) || editor?.isActive("heading", { label: value }) && 'bg-neutral-200/85'
                         )}
-                        onClick={()=>{
-                            if (value===0) {
+                        onClick={() => {
+                            if (value === 0) {
                                 editor?.chain().focus().setParagraph().run()
-                            }else{
-                                editor?.chain().focus().toggleHeading({level:value as Level}).run()
+                            } else {
+                                editor?.chain().focus().toggleHeading({ level: value as Level }).run()
                             }
                         }}
                     >
@@ -329,7 +503,7 @@ export default function Toolbar() {
             <Separator orientation='vertical' className='h-6 bg-neutral-300' />
             <FontFamilyButton />
             <Separator orientation='vertical' className='h-6 bg-neutral-300' />
-            <HeadingLevelButton/>
+            <HeadingLevelButton />
             <Separator orientation='vertical' className='h-6 bg-neutral-300' />
 
             {
@@ -344,9 +518,14 @@ export default function Toolbar() {
                 )
             }
             <Separator orientation='vertical' className='h-6 bg-neutral-900' />
-            <TextColorButton/>
+            <TextColorButton />
             <Separator orientation='vertical' className='h-6 bg-neutral-900' />
-            <HighlightColorButton/>
+            <HighlightColorButton />
+            <Separator orientation='vertical' className='h-6 bg-neutral-900' />
+            <LinkButton />
+            <ImageButton />
+            <AlignButton/>
+            <Separator orientation='vertical' className='h-6 bg-neutral-900' />
         </div>
     )
 }
