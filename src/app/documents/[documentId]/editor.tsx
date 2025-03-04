@@ -18,6 +18,7 @@ import { Color } from '@tiptap/extension-color'
 import Highlight from '@tiptap/extension-highlight'
 import Link from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
+import { FontSizeExtension } from '@/extenions/font-size'
 
 export default function Editor() {
     const { setEditor } = useEditorStore()
@@ -52,7 +53,7 @@ export default function Editor() {
                 class: 'focus:outline-none print:border-0 bg-white border border-[#C7C7C7] flex flex-col min-h-[1054px] w-[816px] pt-10 pr-14 pd-10 cursor:text'
             }
         },
-        extensions: [StarterKit, TaskItem.configure({
+        extensions: [StarterKit,FontSizeExtension, TaskItem.configure({
             nested: true,
         }), TaskList, Table, TableCell, TableRow, TableHeader, TableRow, Image, ImageResize, Underline, FontFamily, TextStyle, Color, Highlight.configure({ multicolor: true }), Link.configure({
             openOnClick: true,
