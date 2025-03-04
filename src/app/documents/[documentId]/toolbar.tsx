@@ -3,7 +3,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import useEditorStore from '@/store/use-editor-store'
-import { AlignCenter, AlignJustify, AlignLeft, AlignLeftIcon, AlignRight, BoldIcon, ChevronDown, EarIcon, HighlighterIcon, ImageIcon, ItalicIcon, Link2Icon, List, ListIcon, ListOrderedIcon, ListTodoIcon, LucideIcon, MessageCircleIcon, MinusIcon, PlusIcon, PrinterIcon, Redo2Icon, SearchIcon, SignalZero, SpellCheckIcon, UnderlineIcon, Undo2Icon, UploadIcon } from 'lucide-react'
+import { AlignCenter, AlignJustify, AlignLeft, AlignLeftIcon, AlignRight, BoldIcon, ChevronDown, HighlighterIcon, ImageIcon, ItalicIcon, Link2Icon, List, ListIcon, ListOrderedIcon, ListTodoIcon, LucideIcon, MessageCircleIcon, MinusIcon, PlusIcon, PrinterIcon, Redo2Icon, SearchIcon, SpellCheckIcon, UnderlineIcon, Undo2Icon, UploadIcon } from 'lucide-react'
 import React, { useState } from 'react'
 import { type Level } from "@tiptap/extension-heading"
 import { SketchPicker, type ColorResult } from 'react-color'
